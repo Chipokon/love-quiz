@@ -1,0 +1,347 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
+  <meta name="theme-color" content="#ffd6e4" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <title>Для тебя 💗</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💗</text></svg>" />
+  <style>
+    :root {
+      --bg1: #ffe4ee;
+      --bg2: #ffd1e1;
+      --card: rgba(255, 255, 255, 0.72);
+      --pink: #ff8fb3;
+      --pink-dark: #ef6a97;
+      --text: #7a3553;
+      --shadow: 0 12px 40px rgba(239, 106, 151, 0.25);
+    }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    html, body {
+      margin: 0;
+      height: 100%;
+      overflow: hidden;
+      overscroll-behavior: none;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Rounded", "Nunito", "Segoe UI", Roboto, sans-serif;
+      color: var(--text);
+      background: radial-gradient(circle at 20% 15%, #fff0f6 0%, transparent 45%),
+                  radial-gradient(circle at 85% 85%, #ffc2d8 0%, transparent 50%),
+                  linear-gradient(160deg, var(--bg1), var(--bg2));
+      min-height: 100dvh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: env(safe-area-inset-top) 16px env(safe-area-inset-bottom);
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    /* ---------- плавающие сердечки на фоне ---------- */
+    .hearts { position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 0; }
+    .hearts span {
+      position: absolute;
+      bottom: -60px;
+      animation: floatUp linear infinite;
+      opacity: 0.55;
+      will-change: transform;
+    }
+    @keyframes floatUp {
+      0%   { transform: translateY(0) translateX(0) rotate(0deg); opacity: 0; }
+      10%  { opacity: 0.6; }
+      50%  { transform: translateY(-55vh) translateX(20px) rotate(15deg); }
+      100% { transform: translateY(-115vh) translateX(-20px) rotate(-10deg); opacity: 0; }
+    }
+
+    /* ---------- главная карточка ---------- */
+    .main {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+      background: var(--card);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border-radius: 32px;
+      padding: 40px 32px 36px;
+      box-shadow: var(--shadow);
+      width: min(380px, 100%);
+    }
+    .smile {
+      font-size: 96px;
+      line-height: 1;
+      display: inline-block;
+      animation: bob 2.4s ease-in-out infinite;
+    }
+    @keyframes bob {
+      0%, 100% { transform: translateY(0) rotate(-4deg); }
+      50%      { transform: translateY(-10px) rotate(4deg); }
+    }
+    .main h1 {
+      font-size: 22px;
+      font-weight: 700;
+      margin: 18px 0 26px;
+    }
+
+    .btn {
+      font: inherit;
+      font-weight: 700;
+      font-size: 18px;
+      border: none;
+      border-radius: 999px;
+      padding: 14px 30px;
+      cursor: pointer;
+      color: #fff;
+      background: linear-gradient(135deg, var(--pink), var(--pink-dark));
+      box-shadow: 0 6px 18px rgba(239, 106, 151, 0.4);
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+      touch-action: manipulation;
+    }
+    .btn:hover { transform: translateY(-2px) scale(1.03); box-shadow: 0 10px 24px rgba(239, 106, 151, 0.45); }
+    .btn:active { transform: scale(0.97); }
+    .btn.secondary {
+      background: #fff;
+      color: var(--pink-dark);
+      box-shadow: 0 6px 18px rgba(239, 106, 151, 0.2);
+    }
+
+    /* ---------- модалки ---------- */
+    .overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      background: rgba(255, 182, 206, 0.45);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.25s ease, visibility 0.25s;
+    }
+    .overlay.open { opacity: 1; visibility: visible; }
+    .modal {
+      background: #fff;
+      border-radius: 28px;
+      padding: 32px 28px 28px;
+      width: min(360px, 100%);
+      text-align: center;
+      box-shadow: var(--shadow);
+      transform: scale(0.85) translateY(20px);
+      transition: transform 0.3s cubic-bezier(.2, 1.4, .4, 1);
+    }
+    .overlay.open .modal { transform: scale(1) translateY(0); }
+    .modal h2 { margin: 0 0 12px; font-size: 26px; }
+    .modal .emojis { font-size: 44px; letter-spacing: 6px; margin-bottom: 24px; }
+    .modal .emojis span { display: inline-block; animation: beat 1.2s ease-in-out infinite; }
+    .modal .emojis span:nth-child(2) { animation-delay: 0.15s; }
+    .modal .emojis span:nth-child(3) { animation-delay: 0.3s; }
+    @keyframes beat {
+      0%, 100% { transform: scale(1); }
+      30%      { transform: scale(1.25); }
+      60%      { transform: scale(0.95); }
+    }
+    .actions {
+      display: flex;
+      gap: 14px;
+      justify-content: center;
+      min-height: 52px;
+    }
+
+    /* кнопка «Нет», которая убегает */
+    #noBtn.runaway {
+      position: fixed;
+      z-index: 50;
+      transition: left 0.25s ease, top 0.25s ease;
+    }
+
+    .cats { font-size: 56px; margin: 6px 0 18px; }
+    .cats span { display: inline-block; animation: wiggle 1.6s ease-in-out infinite; }
+    .cats span:nth-child(2) { animation-delay: 0.2s; }
+    .cats span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes wiggle {
+      0%, 100% { transform: rotate(-8deg) translateY(0); }
+      50%      { transform: rotate(8deg) translateY(-6px); }
+    }
+    .sub { margin: 0 0 22px; font-size: 16px; opacity: 0.8; }
+
+    /* взрыв сердечек после «Да» */
+    .burst {
+      position: fixed;
+      pointer-events: none;
+      z-index: 60;
+      font-size: 26px;
+      animation: burst 1.4s ease-out forwards;
+    }
+    @keyframes burst {
+      0%   { transform: translate(-50%, -50%) scale(0.4); opacity: 1; }
+      100% { transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(1.2) rotate(var(--rot)); opacity: 0; }
+    }
+
+    @media (min-width: 768px) {
+      .main { padding: 56px 48px 48px; width: 440px; }
+      .smile { font-size: 120px; }
+      .main h1 { font-size: 26px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .hearts span, .smile, .emojis span, .cats span { animation: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="hearts" id="hearts" aria-hidden="true"></div>
+
+  <main class="main">
+    <div class="smile">🥰</div>
+    <h1>У меня к тебе один важный вопрос…</h1>
+    <button class="btn" id="startBtn">Пройди опрос</button>
+  </main>
+
+  <!-- Модалка: вопрос -->
+  <div class="overlay" id="askModal" role="dialog" aria-modal="true" aria-labelledby="askTitle">
+    <div class="modal">
+      <h2 id="askTitle">Любишь меня?</h2>
+      <div class="emojis"><span>💖</span><span>💗</span><span>💞</span></div>
+      <div class="actions">
+        <button class="btn" id="yesBtn">Да</button>
+        <button class="btn secondary" id="noBtn" tabindex="-1">Нет</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Модалка: ответ -->
+  <div class="overlay" id="loveModal" role="dialog" aria-modal="true" aria-labelledby="loveTitle">
+    <div class="modal">
+      <h2 id="loveTitle">Я тебя тоже 💕</h2>
+      <div class="cats"><span>😻</span><span>🐱</span><span>😽</span></div>
+      <p class="sub">Очень-очень сильно</p>
+      <button class="btn" id="closeBtn">Мур 🐾</button>
+    </div>
+  </div>
+
+  <script>
+    // ---------- фон из сердечек ----------
+    const heartsBox = document.getElementById('hearts');
+    const heartChars = ['💗', '💕', '💖', '🩷', '💞', '♡'];
+    const heartCount = window.innerWidth < 600 ? 18 : 30;
+    for (let i = 0; i < heartCount; i++) {
+      const s = document.createElement('span');
+      s.textContent = heartChars[i % heartChars.length];
+      s.style.left = Math.random() * 100 + 'vw';
+      s.style.fontSize = 14 + Math.random() * 26 + 'px';
+      s.style.animationDuration = 9 + Math.random() * 10 + 's';
+      s.style.animationDelay = -Math.random() * 18 + 's';
+      heartsBox.appendChild(s);
+    }
+
+    // ---------- модалки ----------
+    const askModal = document.getElementById('askModal');
+    const loveModal = document.getElementById('loveModal');
+    const noBtn = document.getElementById('noBtn');
+    const noHome = noBtn.parentElement;
+
+    const open = (m) => m.classList.add('open');
+    const close = (m) => m.classList.remove('open');
+
+    function resetNo() {
+      noBtn.classList.remove('runaway');
+      noBtn.style.left = noBtn.style.top = '';
+      noHome.appendChild(noBtn);
+    }
+
+    document.getElementById('startBtn').addEventListener('click', () => {
+      resetNo();
+      open(askModal);
+    });
+
+    document.getElementById('yesBtn').addEventListener('click', (e) => {
+      close(askModal);
+      resetNo();
+      open(loveModal);
+      heartBurst(e.clientX || innerWidth / 2, e.clientY || innerHeight / 2);
+    });
+
+    document.getElementById('closeBtn').addEventListener('click', () => close(loveModal));
+
+    // ---------- убегающая кнопка «Нет» ----------
+    const MARGIN = 12;
+
+    function flee(px, py) {
+      const r = noBtn.getBoundingClientRect();
+      // при первом побеге выносим кнопку в body, фиксируем на текущем месте
+      if (!noBtn.classList.contains('runaway')) {
+        document.body.appendChild(noBtn);
+        noBtn.classList.add('runaway');
+        noBtn.style.left = r.left + 'px';
+        noBtn.style.top = r.top + 'px';
+        noBtn.offsetWidth; // reflow, чтобы сработал transition
+      }
+      const w = r.width, h = r.height;
+      const maxX = window.innerWidth - w - MARGIN;
+      const maxY = window.innerHeight - h - MARGIN;
+      if (px == null) { px = r.left + w / 2; py = r.top + h / 2; }
+
+      // ищем точку подальше от пальца/курсора
+      let best = null, bestDist = -1;
+      for (let i = 0; i < 25; i++) {
+        const x = MARGIN + Math.random() * Math.max(0, maxX - MARGIN);
+        const y = MARGIN + Math.random() * Math.max(0, maxY - MARGIN);
+        const d = Math.hypot(x + w / 2 - px, y + h / 2 - py);
+        if (d > bestDist) { bestDist = d; best = { x, y }; }
+        if (d > Math.min(window.innerWidth, window.innerHeight) * 0.45) break;
+      }
+      noBtn.style.left = best.x + 'px';
+      noBtn.style.top = best.y + 'px';
+    }
+
+    // курсор: убегаем, как только мышь приближается
+    document.addEventListener('pointermove', (e) => {
+      if (e.pointerType !== 'mouse' || !askModal.classList.contains('open')) return;
+      const r = noBtn.getBoundingClientRect();
+      const cx = Math.max(r.left, Math.min(e.clientX, r.right));
+      const cy = Math.max(r.top, Math.min(e.clientY, r.bottom));
+      if (Math.hypot(e.clientX - cx, e.clientY - cy) < 60) flee(e.clientX, e.clientY);
+    });
+
+    // палец: убегаем при касании и не даём сработать клику
+    const onTouch = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const t = e.touches ? e.touches[0] : e;
+      flee(t.clientX, t.clientY);
+    };
+    noBtn.addEventListener('touchstart', onTouch, { passive: false });
+    noBtn.addEventListener('pointerdown', onTouch);
+    noBtn.addEventListener('mouseenter', (e) => flee(e.clientX, e.clientY));
+    // если клик всё же прошёл — просто убегаем дальше
+    noBtn.addEventListener('click', (e) => { e.preventDefault(); flee(); });
+
+    window.addEventListener('resize', () => {
+      if (noBtn.classList.contains('runaway')) flee();
+    });
+
+    // ---------- взрыв сердечек ----------
+    function heartBurst(x, y) {
+      const chars = ['💖', '💗', '💕', '😻', '💞'];
+      for (let i = 0; i < 24; i++) {
+        const el = document.createElement('div');
+        el.className = 'burst';
+        el.textContent = chars[i % chars.length];
+        const angle = (Math.PI * 2 * i) / 24;
+        const dist = 120 + Math.random() * 140;
+        el.style.left = x + 'px';
+        el.style.top = y + 'px';
+        el.style.setProperty('--dx', Math.cos(angle) * dist + 'px');
+        el.style.setProperty('--dy', Math.sin(angle) * dist + 'px');
+        el.style.setProperty('--rot', (Math.random() * 120 - 60) + 'deg');
+        document.body.appendChild(el);
+        setTimeout(() => el.remove(), 1500);
+      }
+    }
+  </script>
+</body>
+</html>
